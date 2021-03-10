@@ -124,7 +124,11 @@ public class PaginationInnerInterceptor implements InnerInterceptor {
         if (page == null || page.getSize() < 0 || !page.isSearchCount()) {
             return true;
         }
+        page.setTotal(getTotal(page,executor,ms,parameter,rowBounds,resultHandler,boundSql));
+        return continuePage(page);
+    }
 
+    protected long getTotal(IPage<?> page, Executor executor, MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
         BoundSql countSql;
         MappedStatement countMs = buildCountMappedStatement(ms, page.countId());
         if (countMs != null) {
@@ -147,8 +151,7 @@ public class PaginationInnerInterceptor implements InnerInterceptor {
                 total = Long.parseLong(o.toString());
             }
         }
-        page.setTotal(total);
-        return continuePage(page);
+        return total;
     }
 
     @Override
