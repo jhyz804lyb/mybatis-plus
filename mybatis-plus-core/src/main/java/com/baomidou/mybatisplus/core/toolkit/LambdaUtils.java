@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2011-2020, baomidou (jobob@qq.com).
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * <p>
- * https://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Copyright (c) 2011-2021, baomidou (jobob@qq.com).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.baomidou.mybatisplus.core.toolkit;
 
@@ -22,7 +22,6 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.core.toolkit.support.SerializedLambda;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,22 +47,22 @@ public final class LambdaUtils {
     private static final Map<String, WeakReference<SerializedLambda>> FUNC_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * 解析 lambda 表达式, 该方法只是调用了 {@link SerializedLambda#resolve(SFunction)} 中的方法，在此基础上加了缓存。
+     * 解析 lambda 表达式, 该方法只是调用了 {@link SerializedLambda#resolve(SFunction, ClassLoader)} 中的方法，在此基础上加了缓存。
      * 该缓存可能会在任意不定的时间被清除
      *
      * @param func 需要解析的 lambda 对象
      * @param <T>  类型，被调用的 Function 对象的目标类型
      * @return 返回解析后的结果
-     * @see SerializedLambda#resolve(SFunction)
+     * @see SerializedLambda#resolve(SFunction, ClassLoader)
      */
     public static <T> SerializedLambda resolve(SFunction<T, ?> func) {
         Class<?> clazz = func.getClass();
-        String canonicalName = clazz.getCanonicalName();
-        return Optional.ofNullable(FUNC_CACHE.get(canonicalName))
+        String name = clazz.getName();
+        return Optional.ofNullable(FUNC_CACHE.get(name))
             .map(WeakReference::get)
             .orElseGet(() -> {
-                SerializedLambda lambda = SerializedLambda.resolve(func);
-                FUNC_CACHE.put(canonicalName, new WeakReference<>(lambda));
+                SerializedLambda lambda = SerializedLambda.resolve(func, clazz.getClassLoader());
+                FUNC_CACHE.put(name, new WeakReference<>(lambda));
                 return lambda;
             });
     }
@@ -98,15 +97,17 @@ public final class LambdaUtils {
      * @return 缓存 map
      */
     private static Map<String, ColumnCache> createColumnCacheMap(TableInfo info) {
-        Map<String, ColumnCache> map = new HashMap<>();
+        Map<String, ColumnCache> map;
 
-        String kp = info.getKeyProperty();
-        if (StringUtils.isNotBlank(kp)) {
-            map.put(formatKey(kp), new ColumnCache(info.getKeyColumn(), info.getKeySqlSelect()));
+        if (info.havePK()) {
+            map = CollectionUtils.newHashMapWithExpectedSize(info.getFieldList().size() + 1);
+            map.put(formatKey(info.getKeyProperty()), new ColumnCache(info.getKeyColumn(), info.getKeySqlSelect()));
+        } else {
+            map = CollectionUtils.newHashMapWithExpectedSize(info.getFieldList().size());
         }
 
         info.getFieldList().forEach(i ->
-            map.put(formatKey(i.getProperty()), new ColumnCache(i.getColumn(), i.getSqlSelect()))
+            map.put(formatKey(i.getProperty()), new ColumnCache(i.getColumn(), i.getSqlSelect(), i.getMapping()))
         );
         return map;
     }
@@ -118,10 +119,10 @@ public final class LambdaUtils {
      * @return 缓存 map
      */
     public static Map<String, ColumnCache> getColumnMap(Class<?> clazz) {
-        return COLUMN_CACHE_MAP.computeIfAbsent(clazz.getName(), key -> {
+        return CollectionUtils.computeIfAbsent(COLUMN_CACHE_MAP, clazz.getName(), key -> {
             TableInfo info = TableInfoHelper.getTableInfo(clazz);
             return info == null ? null : createColumnCacheMap(info);
         });
     }
-    
+
 }

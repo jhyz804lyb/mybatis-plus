@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2011-2020, baomidou (jobob@qq.com).
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * <p>
- * https://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Copyright (c) 2011-2021, baomidou (jobob@qq.com).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.baomidou.mybatisplus.core.injector;
 
@@ -45,6 +45,7 @@ import static java.util.stream.Collectors.joining;
  * @author hubin
  * @since 2018-04-06
  */
+@SuppressWarnings("serial")
 public abstract class AbstractMethod implements Constants {
     protected static final Log logger = LogFactory.getLog(AbstractMethod.class);
 
@@ -156,7 +157,7 @@ public abstract class AbstractMethod implements Constants {
      */
     protected String sqlCount() {
         return SqlScriptUtils.convertChoose(String.format("%s != null and %s != null", WRAPPER, Q_WRAPPER_SQL_SELECT),
-            SqlScriptUtils.unSafeParam(Q_WRAPPER_SQL_SELECT), ONE);
+            SqlScriptUtils.unSafeParam(Q_WRAPPER_SQL_SELECT), ASTERISK);
     }
 
     /**
@@ -173,7 +174,7 @@ public abstract class AbstractMethod implements Constants {
      * SQL map 查询条件
      */
     protected String sqlWhereByMap(TableInfo table) {
-        if (table.isLogicDelete()) {
+        if (table.isWithLogicDelete()) {
             // 逻辑删除
             String sqlScript = SqlScriptUtils.convertChoose("v == null", " ${k} IS NULL ",
                 " ${k} = #{v} ");
@@ -201,7 +202,7 @@ public abstract class AbstractMethod implements Constants {
      * @return String
      */
     protected String sqlWhereEntityWrapper(boolean newLine, TableInfo table) {
-        if (table.isLogicDelete()) {
+        if (table.isWithLogicDelete()) {
             String sqlScript = table.getAllSqlWhere(true, true, WRAPPER_ENTITY_DOT);
             sqlScript = SqlScriptUtils.convertIf(sqlScript, String.format("%s != null", WRAPPER_ENTITY),
                 true);

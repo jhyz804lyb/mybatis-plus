@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2011-2020, baomidou (jobob@qq.com).
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * <p>
- * https://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Copyright (c) 2011-2021, baomidou (jobob@qq.com).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.baomidou.mybatisplus.core.parser;
 
@@ -29,7 +29,9 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author hubin
  * @since 2018-07-22
+ * @deprecated 3.4.0
  */
+@Deprecated
 public class SqlParserHelper {
 
     public static final String DELEGATE_MAPPED_STATEMENT = "delegate.mappedStatement";
@@ -73,6 +75,19 @@ public class SqlParserHelper {
                 SQL_PARSER_INFO_CACHE.putIfAbsent(sid, sqlParser.filter());
             }
         }
+    }
+
+    /**
+     * 获取 SqlParser 注解信息
+     */
+    public static boolean getSqlParserInfo(MappedStatement ms) {
+        String id = ms.getId();
+        Boolean value = SQL_PARSER_INFO_CACHE.get(id);
+        if (value != null) {
+            return value;
+        }
+        String mapperName = id.substring(0, id.lastIndexOf(StringPool.DOT));
+        return SQL_PARSER_INFO_CACHE.getOrDefault(mapperName, false);
     }
 
     /**

@@ -1,24 +1,25 @@
 /*
- * Copyright (c) 2011-2020, baomidou (jobob@qq.com).
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * <p>
- * https://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Copyright (c) 2011-2021, baomidou (jobob@qq.com).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.baomidou.mybatisplus.extension.plugins.pagination;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import org.jetbrains.annotations.Nullable;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +59,8 @@ public class Page<T> implements IPage<T> {
     /**
      * 排序字段信息
      */
+    @Getter
+    @Setter
     protected List<OrderItem> orders = new ArrayList<>();
 
     /**
@@ -72,6 +75,18 @@ public class Page<T> implements IPage<T> {
      * 是否命中count缓存
      */
     protected boolean hitCount = false;
+    /**
+     * countId
+     */
+    @Getter
+    @Setter
+    protected String countId;
+    /**
+     * countId
+     */
+    @Getter
+    @Setter
+    protected Long maxLimit;
 
     public Page() {
     }
@@ -165,20 +180,14 @@ public class Page<T> implements IPage<T> {
         return this;
     }
 
-    /**
-     * 获取当前正序排列的字段集合
-     * <p>
-     * 为了兼容，将在不久后废弃
-     *
-     * @return 正序排列的字段集合
-     * @see #getOrders()
-     * @deprecated 3.2.0
-     */
     @Override
-    @Nullable
-    @Deprecated
-    public String[] ascs() {
-        return CollectionUtils.isNotEmpty(orders) ? mapOrderToArray(OrderItem::isAsc) : null;
+    public String countId() {
+        return getCountId();
+    }
+
+    @Override
+    public Long maxLimit() {
+        return getMaxLimit();
     }
 
     /**
@@ -265,20 +274,6 @@ public class Page<T> implements IPage<T> {
     }
 
     /**
-     * 获取需简要倒序排列的字段数组
-     * <p>
-     *
-     * @return 倒序排列的字段数组
-     * @see #getOrders()
-     * @deprecated 3.2.0
-     */
-    @Override
-    @Deprecated
-    public String[] descs() {
-        return mapOrderToArray(i -> !i.isAsc());
-    }
-
-    /**
      * Replaced:{@link #addOrder(OrderItem...)}
      *
      * @param descs 需要倒序排列的字段
@@ -314,14 +309,6 @@ public class Page<T> implements IPage<T> {
     @Override
     public List<OrderItem> orders() {
         return getOrders();
-    }
-
-    public List<OrderItem> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<OrderItem> orders) {
-        this.orders = orders;
     }
 
     @Override

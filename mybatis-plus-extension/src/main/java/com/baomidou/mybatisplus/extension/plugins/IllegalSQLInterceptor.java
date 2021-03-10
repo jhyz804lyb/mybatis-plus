@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2011-2020, baomidou (jobob@qq.com).
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * <p>
- * https://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Copyright (c) 2011-2021, baomidou (jobob@qq.com).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.baomidou.mybatisplus.extension.plugins;
 
@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.core.parser.SqlParserHelper;
 import com.baomidou.mybatisplus.core.toolkit.EncryptUtils;
 import com.baomidou.mybatisplus.core.toolkit.PluginUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.extension.plugins.inner.IllegalSQLInnerInterceptor;
 import lombok.Data;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
@@ -77,9 +78,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>5.where条件使用了 not 关键字</p>
  * <p>6.where条件使用了 or 关键字</p>
  * <p>7.where条件使用了 使用子查询</p>
+ *
  * @author willenfoo
- * @date 2018-03-22
+ * @since 2018-03-22
+ * @deprecated 3.4.0 please use {@link MybatisPlusInterceptor} {@link IllegalSQLInnerInterceptor}
  */
+@Deprecated
 @Intercepts({@Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})})
 public class IllegalSQLInterceptor implements Interceptor {
 
@@ -135,8 +139,8 @@ public class IllegalSQLInterceptor implements Interceptor {
     /**
      * 如果SQL用了 left Join，验证是否有or、not等等，并且验证是否使用了索引
      *
-     * @param joins ignore
-     * @param table ignore
+     * @param joins      ignore
+     * @param table      ignore
      * @param connection ignore
      */
     private static void validJoins(List<Join> joins, Table table, Connection connection) {
@@ -153,7 +157,7 @@ public class IllegalSQLInterceptor implements Interceptor {
     /**
      * 检查是否使用索引
      *
-     * @param table ignore
+     * @param table      ignore
      * @param columnName ignore
      * @param connection ignore
      */
@@ -188,7 +192,7 @@ public class IllegalSQLInterceptor implements Interceptor {
      * 验证where条件的字段，是否有not、or等等，并且where的第一个字段，必须使用索引
      *
      * @param expression ignore
-     * @param table ignore
+     * @param table      ignore
      * @param connection ignore
      */
     private static void validWhere(Expression expression, Table table, Connection connection) {
@@ -199,8 +203,8 @@ public class IllegalSQLInterceptor implements Interceptor {
      * 验证where条件的字段，是否有not、or等等，并且where的第一个字段，必须使用索引
      *
      * @param expression ignore
-     * @param table ignore
-     * @param joinTable ignore
+     * @param table      ignore
+     * @param joinTable  ignore
      * @param connection ignore
      */
     private static void validWhere(Expression expression, Table table, Table joinTable, Connection connection) {
@@ -240,9 +244,9 @@ public class IllegalSQLInterceptor implements Interceptor {
     /**
      * 得到表的索引信息
      *
-     * @param dbName ignore
+     * @param dbName    ignore
      * @param tableName ignore
-     * @param conn ignore
+     * @param conn      ignore
      * @return ignore
      */
     public static List<IndexInfo> getIndexInfos(String dbName, String tableName, Connection conn) {
@@ -252,10 +256,10 @@ public class IllegalSQLInterceptor implements Interceptor {
     /**
      * 得到表的索引信息
      *
-     * @param key ignore
-     * @param dbName ignore
+     * @param key       ignore
+     * @param dbName    ignore
      * @param tableName ignore
-     * @param conn ignore
+     * @param conn      ignore
      * @return ignore
      */
     public static List<IndexInfo> getIndexInfos(String key, String dbName, String tableName, Connection conn) {

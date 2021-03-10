@@ -1,2 +1,0 @@
-- fix: @TableName.autoResultMap=true 情况下, 内置的 selectBody 将不会进行 as ,使用了的需要注意!!!
-- feat: 新增 mybatis-plus-boot-starter-test 模块
